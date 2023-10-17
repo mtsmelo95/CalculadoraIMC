@@ -1,21 +1,52 @@
-import { useState } from 'react'
-import './App.css'
-import Calculator from './Components/Calculator'
-import Inputs from './Components/Inputs'
-import Buttons from './Components/Buttons'
+import { useState } from "react";
+import { data } from "./data/data";
+import "./App.css";
+import Calculator from "./Components/Calculator";
+import ImcTable from "./Components/ImcTable";
 
 function App() {
-  const [altura, setAltura] = useState('');
-  const [peso, setPeso] = useState('');
+  const calcImc = (e, height, weight) => {
+    e.preventDefault();
 
-  return (
-    <div className='ContainerGeral'>
-      <Calculator>
-      <Inputs altura={altura} peso={peso} setAltura={setAltura} setPeso={setPeso} />
-        <Buttons setAltura={setAltura} setPeso={setPeso} />
-      </Calculator>
-    </div>
-  )
-}
+    if (!weight || !height) return;
 
-export default App
+    const weightFloat = +weight.replace(",", ".");
+    const heightFloat = +height.replace(",", ".");
+
+    const imcResult = (weightFloat / (heightFloat * heightFloat)).toFixed(1);
+
+    setImc(imcResult);
+
+    data.forEach((item) => {
+      if (imcResult >= item.min && imcResult <= item.max) {
+        setInfo(item.info);
+        setInfoClass(item.infoClass);
+      }
+    });
+
+    if(!info) return;
+  }
+
+  const resetCalc = (e) => {
+    e.preventDefault();
+    setImc("");
+    setInfo("");
+    setInfoClass("");
+  }
+
+    const [imc, setImc] = useState("");
+    const [info, setInfo] = useState("");
+    const [infoClass, setInfoClass] = useState("");
+
+    return (
+      <div className="Container">
+        {!imc ? (
+          <Calculator calcImc={calcImc} />
+        ) : (
+          <ImcTable data={data} imc={imc} info={info} infoClass={infoClass} resetCalc={resetCalc} />
+        )}
+      </div>
+    );
+  };
+
+export default App;
